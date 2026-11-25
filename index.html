@@ -54,7 +54,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .btn.ghost{background:transparent}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 
-.vec{position:relative;display:inline-block;font-family:var(--math);font-style:italic;font-weight:600;margin-top:.55em}
+.vec{position:relative;display:inline-block;font-family:var(--math);font-style:italic;font-weight:600;line-height:1;margin-top:.5em}
 .vec::before{content:"→";position:absolute;left:0;right:0;top:-.95em;text-align:center;font-style:normal;font-size:.8em;line-height:1;font-family:var(--sans)}
 .mf{font-family:var(--math);font-size:1.02em}
 sub{font-size:.7em;line-height:0}
@@ -130,6 +130,9 @@ input[type=text]{font:inherit;padding:10px 12px;border:1.5px solid var(--line);b
   .brand h1{font-size:1.3em}
 }
 @media (prefers-reduced-motion:reduce){.prog i{transition:none}}
+.limitrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.limitrow .note{margin:0}
+select{font:inherit;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);width:max-content}
 </style>
 </head>
 <body>
@@ -149,6 +152,7 @@ input[type=text]{font:inherit;padding:10px 12px;border:1.5px solid var(--line);b
 
   <!-- HOME -->
   <main id="home" class="wrap" style="gap:20px">
+    <div class="limitrow"><label for="limitHome">Số câu mỗi dạng</label><select id="limitHome"><option>5</option><option>10</option><option>15</option><option>20</option></select><span class="note">Mỗi câu chỉ xuất hiện một lần trong một lượt làm.</span></div>
     <p class="lead">Chọn một dạng để luyện từng công thức, hoặc vào Thử thách để thi đấu chuỗi 20 câu. Phím 1–4 hoặc A–D chọn đáp án, Enter sang câu tiếp.</p>
     <section class="grid" id="topics" aria-label="Các dạng luyện tập"></section>
     <section class="challenge">
@@ -176,6 +180,11 @@ input[type=text]{font:inherit;padding:10px 12px;border:1.5px solid var(--line);b
     <div class="field">
       <span class="legend">Các dạng tham gia</span>
       <div class="checks" id="checks"></div>
+    </div>
+    <div class="field">
+      <label for="limitSetup">Số câu tối đa mỗi dạng</label>
+      <select id="limitSetup"><option>5</option><option>10</option><option>15</option><option>20</option></select>
+      <span class="note" style="margin:0">Mỗi câu chỉ xuất hiện một lần. Cần tổng số câu (số dạng × số câu mỗi dạng) từ 20 trở lên để có thể thắng.</span>
     </div>
     <p class="msg" id="setupMsg" role="alert"></p>
     <div><button class="btn primary" id="btnStart" type="button">Bắt đầu (+1 / −2)</button></div>
@@ -239,7 +248,7 @@ const xs=(c,n)=>c.map?'':'' ;
 const D=(n,p)=>`${n} = ${P(p[0],p[1])}`;
 const lin=(p,v,c)=>cf(p)+v+(c>0?` + ${c}`:c<0?` − ${-c}`:'');
 
-const GEN={1:[],2:[],3:[],4:[],5:[],6:[]};
+const GEN={1:[],2:[],3:[],4:[],5:[],6:[],7:[]};
 
 /* ---- Dạng 1: tọa độ vectơ và điểm ---- */
 GEN[1].push(()=>{
@@ -447,7 +456,70 @@ GEN[6].push(()=>{
     fig:{pts:[],vecs:[{a:[0,0],b:a,l:'a',c:0},{a:[0,0],b:b,l:'b',c:1}]}};
 });
 
+/* ---- Dạng 7: bài toán thực tế ---- */
+const FF=n=>`${V('F')}<sub>${n}</sub>`;
+const VV=n=>`${V('v')}<sub>${n}</sub>`;
+GEN[7].push(()=>{
+  const F1=rp(6),F2=rp(6),s=add(F1,F2);
+  return{t:`Hai lực ${FF(1)} = ${P(...F1)} (N) và ${FF(2)} = ${P(...F2)} (N) cùng tác dụng lên một vật đặt tại gốc tọa độ O của hệ trục Oxy. Tọa độ của hợp lực ${V('F')} = ${FF(1)} + ${FF(2)} là:`,
+    correct:P(...s),wrongs:[P(...sub(F1,F2)),P(...sub(F2,F1)),P(F1[0]+F2[0],F1[1]-F2[1]),P(F1[0]*F2[0],F1[1]*F2[1])],pad:()=>P(s[0]+ri(-3,3),s[1]+ri(-3,3)),
+    why:`Hợp lực bằng tổng hai vectơ lực: ${V('F')} = (x<sub>1</sub> + x<sub>2</sub>; y<sub>1</sub> + y<sub>2</sub>) = (${N(F1[0])} + ${PR(F2[0])}; ${N(F1[1])} + ${PR(F2[1])}) = ${P(...s)}.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:F1,l:'F1',c:0},{a:[0,0],b:F2,l:'F2',c:1},{a:[0,0],b:s,l:'F',c:2}]}};
+});
+GEN[7].push(()=>{
+  const t=pick(TRI),s=[t[0]*sg(),t[1]*sg()],F1=rp(5),F2=sub(s,F1);
+  return{t:`Hai lực ${FF(1)} = ${P(...F1)} (N) và ${FF(2)} = ${P(...F2)} (N) cùng tác dụng lên một vật. Độ lớn của hợp lực tác dụng lên vật là:`,
+    correct:`${t[2]} N`,wrongs:[`${t[2]+1} N`,`${t[2]-1} N`,`${Math.abs(s[0])+Math.abs(s[1])} N`,`${t[2]*t[2]} N`],pad:()=>`${t[2]+ri(-4,4)} N`,
+    why:`Hợp lực ${V('F')} = ${FF(1)} + ${FF(2)} = ${P(...s)}. Độ lớn |${V('F')}| = √(${PR(s[0])}² + ${PR(s[1])}²) = √${s[0]*s[0]+s[1]*s[1]} = ${t[2]} N.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:F1,l:'F1',c:0},{a:[0,0],b:F2,l:'F2',c:1},{a:[0,0],b:s,l:'F',c:2}]}};
+});
+GEN[7].push(()=>{
+  const t=pick(TRI),s=[t[0]*sg(),t[1]*sg()],v1=rp(5),v2=sub(s,v1);
+  return{t:`Một chiếc thuyền có vận tốc riêng ${VV(1)} = ${P(...v1)} (km/h), dòng nước có vận tốc ${VV(2)} = ${P(...v2)} (km/h) trong hệ trục Oxy. Tốc độ thực tế của thuyền so với bờ sông là:`,
+    correct:`${t[2]} km/h`,wrongs:[`${t[2]+1} km/h`,`${t[2]-1} km/h`,`${Math.abs(s[0])+Math.abs(s[1])} km/h`,`${t[2]*2} km/h`],pad:()=>`${t[2]+ri(-4,4)} km/h`,
+    why:`Vận tốc thực tế ${V('v')} = ${VV(1)} + ${VV(2)} = ${P(...s)}. Tốc độ là độ dài vectơ: |${V('v')}| = √(${PR(s[0])}² + ${PR(s[1])}²) = ${t[2]} km/h.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:v1,l:'v1',c:0},{a:v1,b:s,l:'v2',c:1},{a:[0,0],b:s,l:'v',c:2}]}};
+});
+GEN[7].push(()=>{
+  const F=rp(5),A=rp(5);let d=rp(5);if(!d[0]&&!d[1])d=[3,2];const B=add(A,d),w=F[0]*d[0]+F[1]*d[1];
+  return{t:`Một lực ${V('F')} = ${P(...F)} (N) tác dụng làm vật di chuyển từ ${PT('A',A)} đến ${PT('B',B)} (đơn vị độ dài là mét). Công của lực ${V('F')} là A = ${V('F')} · ${V('AB')} (J). Giá trị của A bằng:`,
+    correct:`${w} J`,wrongs:[`${-w} J`,`${F[0]*d[0]-F[1]*d[1]} J`,`${F[0]*d[1]+F[1]*d[0]} J`,`${F[0]*B[0]+F[1]*B[1]} J`],pad:()=>`${w+ri(-8,8)} J`,
+    why:`${V('AB')} = ${P(...d)}. A = ${V('F')} · ${V('AB')} = ${PR(F[0])} · ${PR(d[0])} + ${PR(F[1])} · ${PR(d[1])} = ${w} J.`,
+    fig:{pts:[['A',...A],['B',...B]],vecs:[{a:A,b:B,l:'AB',c:0}]}};
+});
+GEN[7].push(()=>{
+  const A=rp(6),v=[nz(-4,4),nz(-4,4)],t=ri(2,4),pos=[A[0]+t*v[0],A[1]+t*v[1]];
+  return{t:`Trong hệ trục Oxy (đơn vị km), lúc 0 giờ một tàu ở vị trí ${PT('A',A)} và chuyển động thẳng đều với vận tốc ${V('v')} = ${P(...v)} (km/h). Sau ${t} giờ tàu ở vị trí có tọa độ:`,
+    correct:P(...pos),wrongs:[P(...add(A,v)),P(t*(A[0]+v[0]),t*(A[1]+v[1])),P(t*v[0],t*v[1]),P(A[0]-t*v[0],A[1]-t*v[1])],pad:()=>P(pos[0]+ri(-4,4),pos[1]+ri(-4,4)),
+    why:`Vectơ dịch chuyển sau ${t} giờ là ${t}${V('v')} = ${P(t*v[0],t*v[1])}. Vị trí mới = A + ${t}${V('v')} = (${N(A[0])} + ${PR(t*v[0])}; ${N(A[1])} + ${PR(t*v[1])}) = ${P(...pos)}.`,
+    fig:{pts:[['A',...A],['T',...pos]],vecs:[{a:A,b:pos,l:`${t}v`,c:0}]}};
+});
+GEN[7].push(()=>{
+  const A=rp(5),B=rp(5),G=rp(3),C=[3*G[0]-A[0]-B[0],3*G[1]-A[1]-B[1]],S=[A[0]+B[0]+C[0],A[1]+B[1]+C[1]];
+  return{t:`Ba khu dân cư nằm tại ${PT('A',A)}, ${PT('B',B)}, ${PT('C',C)} trên bản đồ (đơn vị km). Cần đặt một trạm tiếp sóng tại trọng tâm G của tam giác ABC. Tọa độ của trạm tiếp sóng là:`,
+    correct:P(...G),wrongs:[P(...S),P(G[0],-G[1]),P(G[1],G[0]),P(-G[0],-G[1])],pad:()=>P(G[0]+ri(-3,3),G[1]+ri(-3,3)),
+    why:`G((x<sub>A</sub> + x<sub>B</sub> + x<sub>C</sub>)/3; (y<sub>A</sub> + y<sub>B</sub> + y<sub>C</sub>)/3) = (${N(S[0])}/3; ${N(S[1])}/3) = ${P(...G)}.`,
+    fig:{pts:[['A',...A],['B',...B],['C',...C],['G',...G]],vecs:[],poly:[A,B,C,A]}};
+});
+GEN[7].push(()=>{
+  const A=rp(5),B=rp(5),C=rp(5),D=sub(add(A,C),B);
+  return{t:`Một mảnh vườn ABCD có dạng hình bình hành. Trong hệ trục Oxy (đơn vị mét), ba đỉnh có tọa độ ${PT('A',A)}, ${PT('B',B)}, ${PT('C',C)}. Tọa độ đỉnh D là:`,
+    correct:P(...D),wrongs:[P(...sub(add(B,C),A)),P(...sub(add(A,B),C)),P(...add(add(A,B),C)),P(D[0],-D[1])],pad:()=>P(D[0]+ri(-4,4),D[1]+ri(-4,4)),
+    why:`ABCD là hình bình hành ⇔ ${V('AB')} = ${V('DC')}, nên D = A + C − B = (${N(A[0])} + ${PR(C[0])} − ${PR(B[0])}; ${N(A[1])} + ${PR(C[1])} − ${PR(B[1])}) = ${P(...D)}.`,
+    fig:{pts:[['A',...A],['B',...B],['C',...C],['D',...D]],vecs:[],poly:[A,B,C,D,A]}};
+});
+GEN[7].push(()=>{
+  let d;if(Math.random()<.6){const t=pick(TRI);d=[t[0]*sg(),t[1]*sg()]}else d=[nz(-6,6),nz(-6,6)];
+  const A=rp(5),B=add(A,d),s=d[0]*d[0]+d[1]*d[1];
+  return{t:`Trên bản đồ có hệ trục Oxy với 1 đơn vị ứng với 1 km, thành phố M ở ${PT('A',A)} và thành phố N ở ${PT('B',B)}. Khoảng cách từ M đến N (đường chim bay) bằng:`,
+    correct:`${sq(s)} km`,wrongs:[`${s} km`,`${sq((d[0]+d[1])**2)} km`,`${sq(Math.abs(d[0])+Math.abs(d[1]))} km`,`${sq(Math.abs(A[0]+B[0])**2+Math.abs(A[1]+B[1])**2)} km`],pad:()=>`${sq(Math.max(1,s+ri(-8,8)))} km`,
+    why:`MN = |${V('AB')}| = √((x<sub>B</sub> − x<sub>A</sub>)² + (y<sub>B</sub> − y<sub>A</sub>)²) = √(${PR(d[0])}² + ${PR(d[1])}²) = √${s} = ${sq(s)} km.`,
+    fig:{pts:[['M',...A],['N',...B]],vecs:[{a:A,b:B,l:'MN',c:0}]}};
+});
+
+const nm=s=>String(s).replace(/(^|[\s(])-(?=\d)/g,'$1−');
 function build(spec){
+  {const pd=spec.pad;spec.correct=nm(spec.correct);spec.wrongs=spec.wrongs.map(nm);spec.pad=()=>nm(pd())}
   const seen=new Set([spec.correct]);let w=[];
   for(const x of spec.wrongs){if(!seen.has(x)){seen.add(x);w.push(x)}}
   w=shuffle(w).slice(0,3);
@@ -464,7 +536,8 @@ const TOPICS=[
  {id:3,name:'Quan hệ hai vectơ',f:`${V('a')} = ${V('b')}, hai vectơ cùng phương ${V('b')} = k${V('a')}`},
  {id:4,name:'Phép toán vectơ',f:`${V('a')} ± ${V('b')} = (x<sub>1</sub> ± x<sub>2</sub>; y<sub>1</sub> ± y<sub>2</sub>), k${V('a')} = (kx<sub>1</sub>; ky<sub>1</sub>)`},
  {id:5,name:'Trung điểm và trọng tâm',f:`M((x<sub>A</sub> + x<sub>B</sub>)/2; …), G((x<sub>A</sub> + x<sub>B</sub> + x<sub>C</sub>)/3; …)`},
- {id:6,name:'Tích vô hướng và góc',f:`${V('a')} · ${V('b')} = x<sub>1</sub>x<sub>2</sub> + y<sub>1</sub>y<sub>2</sub>, cos(${V('a')}, ${V('b')})`}
+ {id:6,name:'Tích vô hướng và góc',f:`${V('a')} · ${V('b')} = x<sub>1</sub>x<sub>2</sub> + y<sub>1</sub>y<sub>2</sub>, cos(${V('a')}, ${V('b')})`},
+ {id:7,name:'Bài toán thực tế',f:`Hợp lực ${V('F')}<sub>1</sub> + ${V('F')}<sub>2</sub>, vận tốc, công A = ${V('F')} · ${V('AB')}`}
 ];
 
 const $=s=>document.querySelector(s);
@@ -495,31 +568,49 @@ function renderBoard(){
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* quiz */
+const LIMKEY='vec_limit';
+const sigOf=q=>q.t+'|'+q.correct;
+function resetRun(limit){S.seen=new Set();S.cnt={};S.dead={};S.limit=limit}
+function candTypes(){const ts=S.mode==='challenge'?S.types:[S.type];return ts.filter(t=>(S.cnt[t]||0)<S.limit&&!S.dead[t])}
+function quotaDone(){return candTypes().length===0}
 function startPractice(type){
   Object.assign(S,{mode:'practice',type,score:0,streak:0,best:0,ok:0,total:0});
-  $('#progWrap').hidden=true;
+  resetRun(+$('#limitHome').value||10);
+  $('#progWrap').hidden=false;
   show('quiz');nextQ();
 }
 function startChallenge(){
   const name=$('#name').value.trim();
   const types=[...document.querySelectorAll('#checks input:checked')].map(i=>+i.value);
+  const limit=+$('#limitSetup').value||10;
   if(!name){$('#setupMsg').textContent='Hãy nhập họ và tên học sinh.';$('#name').focus();return}
   if(!types.length){$('#setupMsg').textContent='Hãy chọn ít nhất một dạng.';return}
+  if(types.length*limit<WIN){$('#setupMsg').textContent=`Cần ít nhất ${WIN} câu: hãy chọn thêm dạng hoặc tăng số câu mỗi dạng (hiện có ${types.length*limit}).`;return}
   $('#setupMsg').textContent='';
   Object.assign(S,{mode:'challenge',name,types,score:0,streak:0,best:0,ok:0,total:0});
+  resetRun(limit);
   $('#progWrap').hidden=false;
   show('quiz');nextQ();
 }
 function renderStats(){
-  const rec=store.get('vec_record',0);
+  const idx=Object.values(S.cnt).reduce((a,b)=>a+b,0);
+  const max=S.mode==='challenge'?S.types.length*S.limit:S.limit;
   $('#stats').innerHTML=S.mode==='challenge'
-    ?`<span class="chip">${esc(S.name)}</span><span class="chip">Điểm: <b>${S.score}</b></span><span class="chip">Chuỗi: <b>${S.streak}/${WIN}</b></span>`
-    :`<span class="chip">Đúng: <b>${S.ok}/${S.total}</b></span><span class="chip">Chuỗi: <b>${S.streak}</b></span>`;
-  $('#prog').style.width=(S.streak/WIN*100)+'%';
+    ?`<span class="chip">${esc(S.name)}</span><span class="chip">Điểm: <b>${S.score<0?'−'+(-S.score):S.score}</b></span><span class="chip">Chuỗi: <b>${S.streak}/${WIN}</b></span><span class="chip">Câu: <b>${idx}/${max}</b></span>`
+    :`<span class="chip">Đúng: <b>${S.ok}/${S.total}</b></span><span class="chip">Chuỗi: <b>${S.streak}</b></span><span class="chip">Câu: <b>${idx}/${max}</b></span>`;
+  $('#prog').style.width=((S.mode==='challenge'?S.streak/WIN:S.total/S.limit)*100)+'%';
 }
 function nextQ(){
-  const type=S.mode==='challenge'?pick(S.types):S.type;
-  S.q=makeQ(type);S.done=false;S.curType=type;
+  let q=null,type=0;
+  while(!q){
+    const c=candTypes();if(!c.length)break;
+    type=pick(c);
+    for(let i=0;i<250;i++){const x=makeQ(type);if(!S.seen.has(sigOf(x))){q=x;break}}
+    if(!q)S.dead[type]=true;
+  }
+  if(!q)return S.mode==='challenge'?finish(false):finishPractice();
+  S.seen.add(sigOf(q));S.cnt[type]=(S.cnt[type]||0)+1;
+  S.q=q;S.done=false;S.curType=type;
   $('#qtitle').textContent=`Dạng ${type} · ${TOPICS[type-1].name}`;
   $('#qtext').innerHTML=S.q.t;
   $('#opts').innerHTML=S.q.opts.map((o,i)=>`<button class="opt" type="button" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${o}</span></button>`).join('');
@@ -545,7 +636,7 @@ function answer(i){
   $('#figure').innerHTML=drawFig(S.q.fig);
   $('#fb').hidden=false;
   const won=S.mode==='challenge'&&S.streak>=WIN;
-  $('#btnNext').textContent=won?'Xem kết quả ➔':'Câu tiếp theo ➔';
+  $('#btnNext').textContent=(won||quotaDone())?'Xem kết quả ➔':'Câu tiếp theo ➔';
   $('#btnNext').focus({preventScroll:true});
   renderStats();
   if(S.mode==='challenge'){ if(S.score>store.get('vec_record',0)){store.set('vec_record',S.score);renderRecord()} }
@@ -553,7 +644,16 @@ function answer(i){
 function onNext(){
   if(!S.done)return;
   if(S.mode==='challenge'&&S.streak>=WIN)return finish(true);
+  if(quotaDone())return S.mode==='challenge'?finish(false):finishPractice();
   nextQ();
+}
+function finishPractice(){
+  const pct=S.total?Math.round(S.ok/S.total*100):0;
+  $('#resName').textContent=`Dạng ${S.type} · ${TOPICS[S.type-1].name}`;
+  $('#resScore').textContent=`${S.ok}/${S.total}`;
+  $('#resMsg').textContent=S.total&&S.ok===S.total?'Tuyệt vời, bạn trả lời đúng tất cả các câu!':`Bạn đã hoàn thành ${S.total} câu của dạng này. Làm lại để gặp các câu mới.`;
+  $('#resSum').innerHTML=`<div><b>${S.ok}/${S.total}</b><span>Số câu đúng</span></div><div><b>${S.best}</b><span>Chuỗi đúng dài nhất</span></div><div><b>${pct}%</b><span>Tỉ lệ đúng</span></div>`;
+  show('result');
 }
 function finish(win){
   if(S.mode==='challenge'&&S.total>0){
@@ -563,7 +663,7 @@ function finish(win){
     if(S.score>store.get('vec_record',0))store.set('vec_record',S.score);
     renderRecord();
     $('#resName').textContent=S.name;
-    $('#resScore').textContent=S.score+' điểm';
+    $('#resScore').textContent=(S.score<0?'−'+(-S.score):S.score)+' điểm';
     $('#resMsg').textContent=win?`Chúc mừng, bạn đã trả lời đúng ${WIN} câu liên tiếp!`:`Chuỗi đúng dài nhất của bạn là ${S.best}/${WIN}. Thử lại để vượt qua nhé.`;
     $('#resSum').innerHTML=`<div><b>${S.ok}/${S.total}</b><span>Số câu đúng</span></div><div><b>${S.best}/${WIN}</b><span>Chuỗi dài nhất</span></div><div><b>${S.total?Math.round(S.ok/S.total*100):0}%</b><span>Tỉ lệ đúng</span></div>`;
     show('result');
@@ -609,7 +709,7 @@ $('#btnChallenge').onclick=()=>{$('#setupMsg').textContent='';show('setup');$('#
 $('#btnStart').onclick=startChallenge;
 $('#btnNext').onclick=onNext;
 $('#btnExit').onclick=()=>finish(false);
-$('#btnAgain').onclick=()=>{show('setup')};
+$('#btnAgain').onclick=()=>{if(S.mode==='practice')startPractice(S.type);else show('setup')};
 $('#btnClear').onclick=()=>{store.set('vec_hist',[]);renderBoard()};
 $('#btnBig').onclick=()=>{
   const on=document.body.classList.toggle('big');
@@ -624,6 +724,10 @@ document.addEventListener('keydown',e=>{
   else if(S.done&&(k==='enter')){e.preventDefault();onNext()}
 });
 
+function setLimit(v){v=+v||10;store.set(LIMKEY,v);$('#limitHome').value=v;$('#limitSetup').value=v}
+$('#limitHome').onchange=e=>setLimit(e.target.value);
+$('#limitSetup').onchange=e=>setLimit(e.target.value);
+setLimit(store.get(LIMKEY,10));
 renderHome();renderRecord();renderBoard();show('home');
 </script>
 
