@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Luyện Vectơ Oxy</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400;1,8..60,600&display=swap">
+<style>
+/* Layout: graph-paper ground, one centred column; topic grid on home, question card + figure on quiz screens */
+:root{
+  --bg:#eef3f2; --card:#fbfdfc; --ink:#13303d; --mute:#5a727c; --line:#cfdcdc; --grid:#e3ecea;
+  --accent:#0a6a86; --accent-ink:#ffffff; --c0:#0a6a86; --c1:#c76a12; --c2:#2c8a4b;
+  --good:#1f7a43; --good-bg:#dff2e6; --bad:#b3261e; --bad-bg:#fbe4e1;
+  --sans:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --math:"Source Serif 4","Times New Roman",Georgia,serif;
+  --fs:16px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1b21; --card:#15262e; --ink:#e3eef0; --mute:#97b0b8; --line:#2a424c; --grid:#1a2d35;
+  --accent:#4cc3e3; --accent-ink:#06222b; --c0:#4cc3e3; --c1:#f0a04b; --c2:#62c887;
+  --good:#7ddc9f; --good-bg:#17382a; --bad:#ff9a91; --bad-bg:#43211e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1b21; --card:#15262e; --ink:#e3eef0; --mute:#97b0b8; --line:#2a424c; --grid:#1a2d35;
+  --accent:#4cc3e3; --accent-ink:#06222b; --c0:#4cc3e3; --c1:#f0a04b; --c2:#62c887;
+  --good:#7ddc9f; --good-bg:#17382a; --bad:#ff9a91; --bad-bg:#43211e; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; font:var(--fs)/1.55 var(--sans); color:var(--ink); background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px; min-height:100vh;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:20px 48px;
+}
+body.big{--fs:21px}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;min-width:0}
+.brand h1{margin:0;font-size:1.5em;line-height:1.2;text-wrap:balance;letter-spacing:-.01em}
+.brand p{margin:2px 0 0;color:var(--mute);font-size:.88em}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{font-size:.85em;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);white-space:nowrap}
+.chip b{font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--card);padding:8px 14px;border-radius:8px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.vec{position:relative;display:inline-block;font-family:var(--math);font-style:italic;font-weight:600;margin-top:.55em}
+.vec::before{content:"→";position:absolute;left:0;right:0;top:-.95em;text-align:center;font-style:normal;font-size:.8em;line-height:1;font-family:var(--sans)}
+.mf{font-family:var(--math);font-size:1.02em}
+sub{font-size:.7em;line-height:0}
+
+.lead{margin:0;color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.topic{text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.topic:hover{border-color:var(--accent)}
+.topic .tag{font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.topic h3{margin:0;font-size:1.02em}
+.topic .f{font-family:var(--math);color:var(--mute);font-size:.95em;line-height:2}
+.challenge{border:2px solid var(--accent);background:var(--card);border-radius:12px;padding:18px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.challenge h2{margin:0 0 4px;font-size:1.15em}
+.challenge p{margin:0;color:var(--mute);max-width:52ch}
+.board{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.board h2{margin:0 0 8px;font-size:1em}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92em}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+th{color:var(--mute);font-weight:600;font-size:.82em}
+.note{font-size:.82em;color:var(--mute);margin:8px 0 0}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.prog{height:8px;border-radius:99px;background:var(--grid);border:1px solid var(--line);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.qtitle{font-size:.8em;color:var(--mute);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.qtext{font-size:1.18em;line-height:2.1;margin:0;font-family:var(--math)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:12px 14px;font-family:var(--math);font-size:1.1em;min-width:0;overflow-wrap:anywhere}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{font-family:var(--sans);font-size:.75em;font-weight:700;width:1.9em;height:1.9em;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;flex:none}
+.opt.right{background:var(--good-bg);border-color:var(--good)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.opt:disabled{cursor:default;color:inherit}
+.fb{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:16px;align-items:start;border-top:1px dashed var(--line);padding-top:16px}
+.fb[hidden]{display:none!important}
+.verdict{font-weight:700;margin:0 0 6px}
+.verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
+.why{font-family:var(--math);line-height:2.1}
+.figure{width:100%;max-width:300px;justify-self:center}
+.figure svg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.nextrow{grid-column:1/-1;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.legend{font-weight:600}
+input[type=text]{font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.check{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);cursor:pointer;min-width:0}
+.check input{width:1.1em;height:1.1em;accent-color:var(--accent);flex:none}
+.big-result{text-align:center;padding:12px 0}
+.big-result .num{font-size:3em;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.sum div{border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center;background:var(--bg)}
+.sum b{display:block;font-size:1.3em;font-variant-numeric:tabular-nums}
+.sum span{font-size:.8em;color:var(--mute)}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.msg{font-size:.85em;color:var(--bad);min-height:1.2em;margin:0}
+
+/* figure svg */
+.g-grid{stroke:var(--grid);stroke-width:1}
+.g-axis{stroke:var(--mute);stroke-width:1.3}
+.g-tick{fill:var(--mute);font:9px var(--sans)}
+.g-pt{fill:var(--ink)}
+.g-txt{fill:var(--ink);font:italic 600 13px var(--math);paint-order:stroke;stroke:var(--card);stroke-width:3px;stroke-linejoin:round}
+.g-poly{fill:none;stroke:var(--mute);stroke-width:1.2;stroke-dasharray:4 3}
+.g-v0{stroke:var(--c0);stroke-width:2.2;fill:none} .g-v1{stroke:var(--c1);stroke-width:2.2;fill:none} .g-v2{stroke:var(--c2);stroke-width:2.2;fill:none}
+.mk0{fill:var(--c0)} .mk1{fill:var(--c1)} .mk2{fill:var(--c2)}
+
+@media (max-width:640px){
+  .opts{grid-template-columns:1fr}
+  .fb{grid-template-columns:1fr}
+  .brand h1{font-size:1.3em}
+}
+@media (prefers-reduced-motion:reduce){.prog i{transition:none}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Luyện Vectơ Oxy</h1>
+      <p>Toán lớp 10 · Tọa độ của vectơ trong mặt phẳng</p>
+    </div>
+    <div class="tools">
+      <span class="chip">Kỷ lục: <b id="record">0</b> điểm</span>
+      <button class="btn ghost" id="btnBig" type="button" aria-pressed="false" title="Phóng to chữ để chiếu lên màn hình lớp">Chế độ trình chiếu</button>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <main id="home" class="wrap" style="gap:20px">
+    <p class="lead">Chọn một dạng để luyện từng công thức, hoặc vào Thử thách để thi đấu chuỗi 20 câu. Phím 1–4 hoặc A–D chọn đáp án, Enter sang câu tiếp.</p>
+    <section class="grid" id="topics" aria-label="Các dạng luyện tập"></section>
+    <section class="challenge">
+      <div>
+        <h2>Thử thách chuỗi 20 câu</h2>
+        <p>Nhập tên, chọn các dạng muốn thi. Đúng +1 điểm, sai −2 điểm và chuỗi về 0. Trả lời đúng 20 câu liên tiếp để thắng.</p>
+      </div>
+      <button class="btn primary" id="btnChallenge" type="button">Vào thử thách</button>
+    </section>
+    <section class="board" id="board" hidden>
+      <h2>Bảng vinh danh trên máy này</h2>
+      <div class="tablewrap"><table><thead><tr><th>Học sinh</th><th>Điểm</th><th>Chuỗi dài nhất</th><th>Kết quả</th><th>Ngày</th></tr></thead><tbody id="boardBody"></tbody></table></div>
+      <p class="note">Bảng này lưu trong trình duyệt của thiết bị đang dùng, không đồng bộ giữa các máy.</p>
+      <button class="btn ghost" id="btnClear" type="button" style="margin-top:8px">Xóa bảng</button>
+    </section>
+  </main>
+
+  <!-- SETUP -->
+  <section id="setup" class="panel" hidden>
+    <div class="bar"><h2 style="margin:0">Thiết lập thử thách</h2><button class="btn ghost" data-go="home" type="button">Hủy</button></div>
+    <div class="field">
+      <label for="name">Họ và tên học sinh</label>
+      <input type="text" id="name" maxlength="40" autocomplete="off" placeholder="Ví dụ: Nguyễn Minh Anh">
+    </div>
+    <div class="field">
+      <span class="legend">Các dạng tham gia</span>
+      <div class="checks" id="checks"></div>
+    </div>
+    <p class="msg" id="setupMsg" role="alert"></p>
+    <div><button class="btn primary" id="btnStart" type="button">Bắt đầu (+1 / −2)</button></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="panel" hidden>
+    <div class="bar">
+      <div class="stats" id="stats"></div>
+      <button class="btn ghost" id="btnExit" type="button">Thoát</button>
+    </div>
+    <div class="prog" id="progWrap" hidden><i id="prog"></i></div>
+    <div>
+      <div class="qtitle" id="qtitle"></div>
+      <p class="qtext" id="qtext"></p>
+    </div>
+    <div class="opts" id="opts" role="group" aria-label="Các đáp án"></div>
+    <div class="fb" id="fb" hidden aria-live="polite">
+      <div>
+        <p class="verdict" id="verdict"></p>
+        <div class="why" id="why"></div>
+      </div>
+      <div class="figure" id="figure"></div>
+      <div class="nextrow"><button class="btn primary" id="btnNext" type="button">Câu tiếp theo ➔</button></div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="panel" hidden>
+    <div class="big-result">
+      <div class="qtitle" id="resName"></div>
+      <div class="num" id="resScore">0</div>
+      <p id="resMsg" class="lead"></p>
+    </div>
+    <div class="sum" id="resSum"></div>
+    <div class="row"><button class="btn primary" id="btnAgain" type="button">Chơi lại</button><button class="btn" data-go="home" type="button">Về trang chủ</button></div>
+  </section>
+</div>
+
+<script>
+//<GEN
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const nz=(a,b)=>{let v;do v=ri(a,b);while(v===0);return v};
+const pick=a=>a[ri(0,a.length-1)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const N=x=>x<0?'−'+(-x):''+x;
+const PR=x=>x<0?'('+N(x)+')':''+x;
+const P=(x,y)=>`(${N(x)}; ${N(y)})`;
+const PT=(n,p)=>`${n}${P(p[0],p[1])}`;
+const V=s=>`<span class="vec">${s}</span>`;
+const cf=x=>x===1?'':x===-1?'−':N(x);
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+const rp=(m=7)=>[ri(-m,m),ri(-m,m)];
+function sq(n){if(n<=0)return '0';let k=1,m=n;for(let f=Math.floor(Math.sqrt(n));f>1;f--){if(n%(f*f)===0){k=f;m=n/(f*f);break}}if(m===1)return ''+k;return (k>1?k:'')+'√'+m}
+function frac(n,d){const g=gcd(n,d)||1;n/=g;d/=g;if(d<0){n=-n;d=-d}return d===1?N(n):`${N(n)}/${d}`}
+const TRI=[[3,4,5],[4,3,5],[6,8,10],[8,6,10],[5,12,13],[12,5,13],[8,15,17],[15,8,17]];
+const sg=()=>pick([-1,1]);
+const sub=(p,q)=>[p[0]-q[0],p[1]-q[1]];
+const add=(p,q)=>[p[0]+q[0],p[1]+q[1]];
+const xs=(c,n)=>c.map?'':'' ;
+const D=(n,p)=>`${n} = ${P(p[0],p[1])}`;
+const lin=(p,v,c)=>cf(p)+v+(c>0?` + ${c}`:c<0?` − ${-c}`:'');
+
+const GEN={1:[],2:[],3:[],4:[],5:[],6:[]};
+
+/* ---- Dạng 1: tọa độ vectơ và điểm ---- */
+GEN[1].push(()=>{
+  const A=rp(6);let B=rp(6);if(A[0]===B[0]&&A[1]===B[1])B=[B[0]+3,B[1]-2];
+  const d=sub(B,A);
+  return{t:`Trong mặt phẳng Oxy, cho ${PT('A',A)} và ${PT('B',B)}. Tọa độ của vectơ ${V('AB')} là:`,
+    correct:P(...d),wrongs:[P(-d[0],-d[1]),P(A[0]+B[0],A[1]+B[1]),P(d[0],-d[1]),P(d[1],d[0])],
+    pad:()=>P(d[0]+ri(-3,3),d[1]+ri(-3,3)),
+    why:`${V('AB')} = (x<sub>B</sub> − x<sub>A</sub>; y<sub>B</sub> − y<sub>A</sub>) = (${N(B[0])} − ${PR(A[0])}; ${N(B[1])} − ${PR(A[1])}) = ${P(...d)}.`,
+    fig:{pts:[['A',...A],['B',...B]],vecs:[{a:A,b:B,l:'AB',c:0}]}};
+});
+GEN[1].push(()=>{
+  const x=nz(-6,6),y=nz(-6,6);
+  return{t:`Trong mặt phẳng Oxy, cho vectơ ${V('u')} = ${cf(x)}${V('i')} ${y<0?'−':'+'} ${cf(Math.abs(y))}${V('j')}. Tọa độ của ${V('u')} là:`,
+    correct:P(x,y),wrongs:[P(y,x),P(-x,y),P(x,-y),P(-x,-y)],pad:()=>P(x+ri(-2,2),y+ri(-2,2)),
+    why:`Vectơ ${V('u')} = x${V('i')} + y${V('j')} có tọa độ (x; y), nên ${V('u')} = ${P(x,y)}.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:[x,y],l:'u',c:0}]}};
+});
+GEN[1].push(()=>{
+  const A=rp(6),d=[ri(-6,6),ri(-6,6)];if(!d[0]&&!d[1])d[0]=2;const B=add(A,d);
+  return{t:`Trong mặt phẳng Oxy, cho ${PT('A',A)} và ${V('AB')} = ${P(...d)}. Tọa độ điểm B là:`,
+    correct:P(...B),wrongs:[P(...sub(A,d)),P(...sub(d,A)),P(A[0]+d[1],A[1]+d[0]),P(d[0],d[1])],pad:()=>P(B[0]+ri(-3,3),B[1]+ri(-3,3)),
+    why:`${V('AB')} = (x<sub>B</sub> − x<sub>A</sub>; y<sub>B</sub> − y<sub>A</sub>), suy ra x<sub>B</sub> = ${N(A[0])} + ${PR(d[0])} = ${N(B[0])}, y<sub>B</sub> = ${N(A[1])} + ${PR(d[1])} = ${N(B[1])}.`,
+    fig:{pts:[['A',...A],['B',...B]],vecs:[{a:A,b:B,l:'AB',c:0}]}};
+});
+
+/* ---- Dạng 2: độ dài và khoảng cách ---- */
+const padSq=s=>()=>sq(Math.max(1,s+ri(-8,8)));
+GEN[2].push(()=>{
+  let x,y;if(Math.random()<.5){const t=pick(TRI);x=t[0]*sg();y=t[1]*sg()}else{x=nz(-7,7);y=nz(-7,7)}
+  const s=x*x+y*y;
+  return{t:`Trong mặt phẳng Oxy, cho vectơ ${V('u')} = ${P(x,y)}. Độ dài của ${V('u')} bằng:`,
+    correct:sq(s),wrongs:[''+s,sq((x+y)**2),sq(Math.abs(x)+Math.abs(y)),sq(Math.abs(x*x-y*y))],pad:padSq(s),
+    why:`|${V('u')}| = √(x² + y²) = √(${PR(x)}² + ${PR(y)}²) = √${s} = ${sq(s)}.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:[x,y],l:'u',c:0}]}};
+});
+GEN[2].push(()=>{
+  const A=rp(6);let d;if(Math.random()<.5){const t=pick(TRI);d=[t[0]*sg(),t[1]*sg()]}else{d=[nz(-6,6),nz(-6,6)]}
+  const B=add(A,d),s=d[0]*d[0]+d[1]*d[1];
+  return{t:`Trong mặt phẳng Oxy, cho ${PT('A',A)} và ${PT('B',B)}. Khoảng cách giữa hai điểm A và B bằng:`,
+    correct:sq(s),wrongs:[''+s,sq((d[0]+d[1])**2),sq(Math.abs(A[0]+B[0])**2+Math.abs(A[1]+B[1])**2),sq(Math.abs(d[0])+Math.abs(d[1]))],pad:padSq(s),
+    why:`AB = √((x<sub>B</sub> − x<sub>A</sub>)² + (y<sub>B</sub> − y<sub>A</sub>)²) = √(${PR(d[0])}² + ${PR(d[1])}²) = √${s} = ${sq(s)}.`,
+    fig:{pts:[['A',...A],['B',...B]],vecs:[{a:A,b:B,l:'AB',c:0}]}};
+});
+GEN[2].push(()=>{
+  const t=pick(TRI),a=t[0]*sg(),b=t[1],r=t[2];
+  const ok=`y = ${b} hoặc y = ${-b}`;
+  return{t:`Trong mặt phẳng Oxy, cho vectơ ${V('u')} = (${N(a)}; y) có độ dài bằng ${r}. Tìm tất cả các giá trị của y.`,
+    correct:ok,wrongs:[`y = ${b}`,`y = ${-b}`,`y = ${r-Math.abs(a)} hoặc y = ${-(r-Math.abs(a))}`,`y = ${b+1} hoặc y = ${-(b+1)}`],
+    pad:()=>{const k=ri(1,13);return `y = ${k} hoặc y = ${-k}`},
+    why:`|${V('u')}| = ${r} ⇔ ${PR(a)}² + y² = ${r*r} ⇔ y² = ${b*b} ⇔ y = ${b} hoặc y = ${-b}.`,
+    fig:null};
+});
+GEN[2].push(()=>{
+  const M=[nz(-8,8),nz(-8,8)];
+  const s=M[0]*M[0]+M[1]*M[1];
+  return{t:`Trong mặt phẳng Oxy, khoảng cách từ điểm ${PT('M',M)} đến gốc tọa độ O bằng:`,
+    correct:sq(s),wrongs:[''+s,sq((M[0]+M[1])**2),sq(Math.abs(M[0])+Math.abs(M[1])),sq(Math.abs(M[0]*M[0]-M[1]*M[1]))],pad:padSq(s),
+    why:`OM = √(x<sub>M</sub>² + y<sub>M</sub>²) = √(${PR(M[0])}² + ${PR(M[1])}²) = √${s} = ${sq(s)}.`,
+    fig:{pts:[['M',...M]],vecs:[{a:[0,0],b:M,l:'OM',c:0}]}};
+});
+
+/* ---- Dạng 3: quan hệ hai vectơ ---- */
+GEN[3].push(()=>{
+  const m0=nz(-4,4),n0=nz(-4,4),p=pick([1,2,3,-1,-2]),c1=ri(-3,3),r=pick([1,2,3,-1,-2]),c2=ri(-3,3);
+  const Pv=p*m0+c1,q=r*n0+c2;
+  return{t:`Cho ${V('a')} = (${lin(p,'m',c1)}; ${N(q)}) và ${V('b')} = (${N(Pv)}; ${lin(r,'n',c2)}). Hai vectơ ${V('a')} và ${V('b')} bằng nhau khi:`,
+    correct:`m = ${m0}, n = ${n0}`,wrongs:[`m = ${n0}, n = ${m0}`,`m = ${-m0}, n = ${n0}`,`m = ${m0}, n = ${-n0}`,`m = ${m0+1}, n = ${n0}`],
+    pad:()=>`m = ${m0+ri(-3,3)}, n = ${n0+ri(-3,3)}`,
+    why:`${V('a')} = ${V('b')} ⇔ ${lin(p,'m',c1)} = ${N(Pv)} và ${N(q)} = ${lin(r,'n',c2)} ⇔ m = ${m0} và n = ${n0}.`,fig:null};
+});
+GEN[3].push(()=>{
+  const p=nz(-4,4),q=nz(-4,4),k=pick([-3,-2,2,3]),r=k*q,m0=k*p;
+  return{t:`Cho ${V('a')} = ${P(p,q)} và ${V('b')} = (m; ${N(r)}). Hai vectơ ${V('a')} và ${V('b')} cùng phương khi m bằng:`,
+    correct:N(m0),wrongs:[N(-m0),N(k+p),N(p*r),N(m0+k)],pad:()=>N(m0+ri(-5,5)),
+    why:`${V('b')} cùng phương ${V('a')} ⇔ ${V('b')} = k${V('a')}. Từ ${N(r)} = k · ${PR(q)} suy ra k = ${k}, nên m = ${PR(k)} · ${PR(p)} = ${N(m0)}.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:[p,q],l:'a',c:0},{a:[0,0],b:[m0,r],l:'b',c:1}]}};
+});
+GEN[3].push(()=>{
+  const A=rp(4),d=[nz(-3,3),nz(-3,3)],B=add(A,d),t=pick([2,3,-1,-2]),C=[A[0]+t*d[0],A[1]+t*d[1]];
+  return{t:`Trong mặt phẳng Oxy, cho ${PT('A',A)}, ${PT('B',B)} và C(${N(C[0])}; m). Ba điểm A, B, C thẳng hàng khi m bằng:`,
+    correct:N(C[1]),wrongs:[N(-C[1]),N(C[1]+d[1]),N(C[1]-d[1]),N(B[1]*t)],pad:()=>N(C[1]+ri(-5,5)),
+    why:`${V('AB')} = ${P(...d)}, ${V('AC')} = (${N(C[0]-A[0])}; m − ${PR(A[1])}). A, B, C thẳng hàng ⇔ ${V('AC')} = ${t}${V('AB')}, suy ra m − ${PR(A[1])} = ${N(t*d[1])}, vậy m = ${N(C[1])}.`,
+    fig:{pts:[['A',...A],['B',...B],['C',...C]],vecs:[{a:A,b:B,l:'AB',c:0},{a:A,b:C,l:'AC',c:1}]}};
+});
+GEN[3].push(()=>{
+  const a=[nz(-4,4),nz(-4,4)],k=pick([-3,-2,2,3]),b=[k*a[0],k*a[1]];
+  const cross=(u,v)=>u[0]*v[1]-u[1]*v[0];
+  const str=(u,v)=>`${P(...u)} và ${P(...v)}`;
+  const wrongs=[];
+  for(const dl of [1,-1,2]){const b2=[b[0]+dl,b[1]];if(cross(a,b2)!==0)wrongs.push(str(a,b2))}
+  return{t:`Cặp vectơ nào sau đây cùng phương?`,
+    correct:str(a,b),wrongs,pad:()=>{let u,v;do{u=[nz(-5,5),nz(-5,5)];v=[nz(-6,6),nz(-6,6)]}while(cross(u,v)===0);return str(u,v)},
+    why:`Hai vectơ ${P(...a)} và ${P(...b)} cùng phương vì ${P(...b)} = ${N(k)} · ${P(...a)}, hay x<sub>1</sub>y<sub>2</sub> − x<sub>2</sub>y<sub>1</sub> = 0. Ở các cặp còn lại tích chéo khác 0.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:a,l:'a',c:0},{a:[0,0],b:b,l:'b',c:1}]}};
+});
+
+/* ---- Dạng 4: phép toán vectơ ---- */
+const vf=(a,b,r,rl,ra)=>({pts:[],vecs:[{a:[0,0],b:a,l:'a',c:0},{a:[0,0],b:b,l:'b',c:1},{a:[0,0],b:r,l:rl,c:2}]});
+const ab2=()=>{let a=rp(5),b=rp(5);if(a[0]===0&&a[1]===0)a=[2,1];if(b[0]===0&&b[1]===0)b=[1,-2];return [a,b]};
+GEN[4].push(()=>{
+  const [a,b]=ab2(),s=add(a,b);
+  return{t:`Cho ${V('a')} = ${P(...a)} và ${V('b')} = ${P(...b)}. Tọa độ của vectơ ${V('a')} + ${V('b')} là:`,
+    correct:P(...s),wrongs:[P(...sub(a,b)),P(...sub(b,a)),P(a[0]+b[0],a[1]-b[1]),P(a[0]*b[0],a[1]*b[1])],pad:()=>P(s[0]+ri(-3,3),s[1]+ri(-3,3)),
+    why:`${V('a')} + ${V('b')} = (x<sub>1</sub> + x<sub>2</sub>; y<sub>1</sub> + y<sub>2</sub>) = (${N(a[0])} + ${PR(b[0])}; ${N(a[1])} + ${PR(b[1])}) = ${P(...s)}.`,
+    fig:vf(a,b,s,'a+b')};
+});
+GEN[4].push(()=>{
+  const [a,b]=ab2(),s=sub(a,b);
+  return{t:`Cho ${V('a')} = ${P(...a)} và ${V('b')} = ${P(...b)}. Tọa độ của vectơ ${V('a')} − ${V('b')} là:`,
+    correct:P(...s),wrongs:[P(...sub(b,a)),P(...add(a,b)),P(a[0]-b[0],a[1]+b[1]),P(a[0]+b[0],a[1]-b[1])],pad:()=>P(s[0]+ri(-3,3),s[1]+ri(-3,3)),
+    why:`${V('a')} − ${V('b')} = (x<sub>1</sub> − x<sub>2</sub>; y<sub>1</sub> − y<sub>2</sub>) = (${N(a[0])} − ${PR(b[0])}; ${N(a[1])} − ${PR(b[1])}) = ${P(...s)}.`,
+    fig:vf(a,b,s,'a−b')};
+});
+GEN[4].push(()=>{
+  const [a]=ab2(),k=pick([-3,-2,2,3,4]),s=[k*a[0],k*a[1]];
+  return{t:`Cho ${V('a')} = ${P(...a)}. Tọa độ của vectơ ${N(k)}${V('a')} là:`,
+    correct:P(...s),wrongs:[P(-s[0],-s[1]),P(k*a[0],a[1]),P(a[0],k*a[1]),P(a[0]+k,a[1]+k)],pad:()=>P(s[0]+ri(-3,3),s[1]+ri(-3,3)),
+    why:`k${V('a')} = (kx; ky) = (${PR(k)} · ${PR(a[0])}; ${PR(k)} · ${PR(a[1])}) = ${P(...s)}.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:a,l:'a',c:0},{a:[0,0],b:s,l:`${k}a`,c:2}]}};
+});
+GEN[4].push(()=>{
+  const [a,b]=ab2(),k=pick([2,3,-1,-2]),l=pick([-3,-2,2,3]);
+  const s=[k*a[0]+l*b[0],k*a[1]+l*b[1]];
+  return{t:`Cho ${V('a')} = ${P(...a)} và ${V('b')} = ${P(...b)}. Tọa độ của vectơ ${V('u')} = ${cf(k)}${V('a')} ${l<0?'−':'+'} ${cf(Math.abs(l))}${V('b')} là:`,
+    correct:P(...s),wrongs:[P(k*a[0]-l*b[0],k*a[1]-l*b[1]),P(l*a[0]+k*b[0],l*a[1]+k*b[1]),P(-s[0],-s[1]),P(k*a[0]+Math.abs(l)*b[0],k*a[1]+Math.abs(l)*b[1])],
+    pad:()=>P(s[0]+ri(-4,4),s[1]+ri(-4,4)),
+    why:`${N(k)}${V('a')} = ${P(k*a[0],k*a[1])} và ${N(l)}${V('b')} = ${P(l*b[0],l*b[1])}. Cộng lại: ${V('u')} = ${P(...s)}.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:[k*a[0],k*a[1]],l:`${k}a`,c:0},{a:[0,0],b:[l*b[0],l*b[1]],l:`${l}b`,c:1},{a:[0,0],b:s,l:'u',c:2}]}};
+});
+
+/* ---- Dạng 5: trung điểm và trọng tâm ---- */
+GEN[5].push(()=>{
+  const A=rp(6),d=[ri(-4,4),ri(-4,4)];if(!d[0]&&!d[1])d[1]=2;const B=add(A,[2*d[0],2*d[1]]),M=add(A,d);
+  return{t:`Trong mặt phẳng Oxy, cho ${PT('A',A)} và ${PT('B',B)}. Tọa độ trung điểm M của đoạn thẳng AB là:`,
+    correct:P(...M),wrongs:[P(...add(A,B)),P(...sub(B,A)),P(M[0],-M[1]),P(M[1],M[0])],pad:()=>P(M[0]+ri(-3,3),M[1]+ri(-3,3)),
+    why:`M((x<sub>A</sub> + x<sub>B</sub>)/2; (y<sub>A</sub> + y<sub>B</sub>)/2) = ((${N(A[0])} + ${PR(B[0])})/2; (${N(A[1])} + ${PR(B[1])})/2) = ${P(...M)}.`,
+    fig:{pts:[['A',...A],['B',...B],['M',...M]],vecs:[],poly:[A,B]}};
+});
+GEN[5].push(()=>{
+  const A=rp(5),B=rp(5),G=rp(3),C=[3*G[0]-A[0]-B[0],3*G[1]-A[1]-B[1]];
+  const S=[A[0]+B[0]+C[0],A[1]+B[1]+C[1]];
+  return{t:`Trong mặt phẳng Oxy, cho tam giác ABC có ${PT('A',A)}, ${PT('B',B)}, ${PT('C',C)}. Tọa độ trọng tâm G của tam giác là:`,
+    correct:P(...G),wrongs:[P(...S),P(G[0],-G[1]),P(G[1],G[0]),P(-G[0],-G[1])],pad:()=>P(G[0]+ri(-3,3),G[1]+ri(-3,3)),
+    why:`G((x<sub>A</sub> + x<sub>B</sub> + x<sub>C</sub>)/3; (y<sub>A</sub> + y<sub>B</sub> + y<sub>C</sub>)/3) = (${N(S[0])}/3; ${N(S[1])}/3) = ${P(...G)}.`,
+    fig:{pts:[['A',...A],['B',...B],['C',...C],['G',...G]],vecs:[],poly:[A,B,C,A]}};
+});
+GEN[5].push(()=>{
+  const A=rp(5),B=rp(5),C=rp(5),D=sub(add(A,C),B);
+  return{t:`Trong mặt phẳng Oxy, cho ba điểm ${PT('A',A)}, ${PT('B',B)}, ${PT('C',C)}. Tìm tọa độ điểm D để ABCD là hình bình hành.`,
+    correct:P(...D),wrongs:[P(...sub(add(B,C),A)),P(...sub(add(A,B),C)),P(...add(add(A,B),C)),P(...sub(B,sub(C,A)).map(v=>-v))],pad:()=>P(D[0]+ri(-4,4),D[1]+ri(-4,4)),
+    why:`ABCD là hình bình hành ⇔ ${V('AB')} = ${V('DC')}, nên D = A + C − B = (${N(A[0])} + ${PR(C[0])} − ${PR(B[0])}; ${N(A[1])} + ${PR(C[1])} − ${PR(B[1])}) = ${P(...D)}. Cũng có thể dùng hai đường chéo cùng trung điểm.`,
+    fig:{pts:[['A',...A],['B',...B],['C',...C],['D',...D]],vecs:[],poly:[A,B,C,D,A]}};
+});
+GEN[5].push(()=>{
+  const A=rp(6),M=rp(5),B=sub([2*M[0],2*M[1]],A);
+  return{t:`Trong mặt phẳng Oxy, cho ${PT('A',A)}. Biết M${P(...M)} là trung điểm của đoạn thẳng AB. Tọa độ điểm B là:`,
+    correct:P(...B),wrongs:[P(...sub(M,A)),P(...add(A,M)),P(...sub([2*A[0],2*A[1]],M)),P(...add([2*M[0],2*M[1]],A))],pad:()=>P(B[0]+ri(-3,3),B[1]+ri(-3,3)),
+    why:`M là trung điểm của AB nên x<sub>B</sub> = 2x<sub>M</sub> − x<sub>A</sub> = ${N(2*M[0])} − ${PR(A[0])} = ${N(B[0])} và y<sub>B</sub> = 2y<sub>M</sub> − y<sub>A</sub> = ${N(2*M[1])} − ${PR(A[1])} = ${N(B[1])}.`,
+    fig:{pts:[['A',...A],['B',...B],['M',...M]],vecs:[],poly:[A,B]}};
+});
+GEN[5].push(()=>{
+  const A=rp(5),B=rp(5),G=rp(3),C=[3*G[0]-A[0]-B[0],3*G[1]-A[1]-B[1]];
+  return{t:`Trong mặt phẳng Oxy, cho tam giác ABC có ${PT('A',A)}, ${PT('B',B)} và trọng tâm G${P(...G)}. Tọa độ đỉnh C là:`,
+    correct:P(...C),wrongs:[P(...sub(sub(G,A),B)),P(...sub(add(A,B),[3*G[0],3*G[1]])),P(...add(add([3*G[0],3*G[1]],A),B)),P(G[0]-A[0]-B[0]+G[0],G[1]-A[1]-B[1]+G[1])],pad:()=>P(C[0]+ri(-4,4),C[1]+ri(-4,4)),
+    why:`G là trọng tâm nên x<sub>C</sub> = 3x<sub>G</sub> − x<sub>A</sub> − x<sub>B</sub> = ${N(3*G[0])} − ${PR(A[0])} − ${PR(B[0])} = ${N(C[0])}, y<sub>C</sub> = 3y<sub>G</sub> − y<sub>A</sub> − y<sub>B</sub> = ${N(3*G[1])} − ${PR(A[1])} − ${PR(B[1])} = ${N(C[1])}.`,
+    fig:{pts:[['A',...A],['B',...B],['C',...C],['G',...G]],vecs:[],poly:[A,B,C,A]}};
+});
+
+/* ---- Dạng 6: tích vô hướng và góc ---- */
+GEN[6].push(()=>{
+  const a=rp(5),b=rp(5),d=a[0]*b[0]+a[1]*b[1];
+  return{t:`Cho ${V('a')} = ${P(...a)} và ${V('b')} = ${P(...b)}. Tích vô hướng ${V('a')} · ${V('b')} bằng:`,
+    correct:N(d),wrongs:[N(a[0]*b[0]-a[1]*b[1]),N(a[0]*b[1]+a[1]*b[0]),N((a[0]+b[0])*(a[1]+b[1])),N(-d)],pad:()=>N(d+ri(-6,6)),
+    why:`${V('a')} · ${V('b')} = x<sub>1</sub>x<sub>2</sub> + y<sub>1</sub>y<sub>2</sub> = ${PR(a[0])} · ${PR(b[0])} + ${PR(a[1])} · ${PR(b[1])} = ${N(d)}.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:a,l:'a',c:0},{a:[0,0],b:b,l:'b',c:1}]}};
+});
+GEN[6].push(()=>{
+  const r=pick([1,2,-1,-2]),s=nz(-3,3),m0=nz(-5,5);
+  const a=[r*s,-s*m0];if(a[0]===0)a[0]=1;
+  const aa=[r*s,-s*m0];
+  return{t:`Cho ${V('a')} = ${P(...aa)} và ${V('b')} = (m; ${N(r)}). Hai vectơ ${V('a')} và ${V('b')} vuông góc với nhau khi m bằng:`,
+    correct:N(m0),wrongs:[N(-m0),N(m0+1),N(m0-1),N(r)],pad:()=>N(m0+ri(-5,5)),
+    why:`${V('a')} ⊥ ${V('b')} ⇔ ${V('a')} · ${V('b')} = 0 ⇔ ${PR(aa[0])}m + ${PR(aa[1])} · ${PR(r)} = 0 ⇔ ${N(aa[0])}m = ${N(-aa[1]*r)} ⇔ m = ${N(m0)}.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:aa,l:'a',c:0},{a:[0,0],b:[m0,r],l:'b',c:1}]}};
+});
+GEN[6].push(()=>{
+  const s=ri(1,4)*sg(),a=Math.random()<.5?[s,0]:[0,s],t=ri(1,3),b=[t*sg(),t*sg()];
+  const dot=a[0]*b[0]+a[1]*b[1],na=a[0]*a[0]+a[1]*a[1],nb=b[0]*b[0]+b[1]*b[1];
+  const deg=Math.round(Math.acos(dot/Math.sqrt(na*nb))*180/Math.PI);
+  const cs=deg===45?'√2/2':'−√2/2';
+  return{t:`Cho ${V('a')} = ${P(...a)} và ${V('b')} = ${P(...b)}. Góc giữa hai vectơ ${V('a')} và ${V('b')} bằng:`,
+    correct:deg+'°',wrongs:[(180-deg)+'°','60°','90°','30°','120°'],pad:()=>pick([30,45,60,90,120,135,150])+'°',
+    why:`cos(${V('a')}, ${V('b')}) = ${V('a')} · ${V('b')} / (|${V('a')}| · |${V('b')}|) = ${N(dot)} / (${sq(na)} · ${sq(nb)}) = ${cs}. Vậy góc bằng ${deg}°.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:a,l:'a',c:0},{a:[0,0],b:b,l:'b',c:1}]}};
+});
+GEN[6].push(()=>{
+  const S=[[3,4],[4,3],[6,8],[8,6],[5,12],[12,5]];
+  let a,b,d,ra,rb;
+  do{const u=pick(S),v=pick(S);a=[u[0]*sg(),u[1]*sg()];b=[v[0]*sg(),v[1]*sg()];d=a[0]*b[0]+a[1]*b[1];ra=Math.hypot(...a);rb=Math.hypot(...b)}while(d===0||gcd(Math.abs(d),ra*rb)===ra*rb&&false);
+  const ans=frac(d,ra*rb);
+  return{t:`Cho ${V('a')} = ${P(...a)} và ${V('b')} = ${P(...b)}. Giá trị cos(${V('a')}, ${V('b')}) bằng:`,
+    correct:ans,wrongs:[frac(-d,ra*rb),frac(d,ra+rb),frac(d,ra*rb+ra),frac(Math.abs(a[0]*b[1]-a[1]*b[0]),ra*rb)],pad:()=>frac(d+ri(-4,4)||1,ra*rb),
+    why:`${V('a')} · ${V('b')} = ${N(d)}, |${V('a')}| = ${ra}, |${V('b')}| = ${rb}. Vậy cos(${V('a')}, ${V('b')}) = ${N(d)}/(${ra} · ${rb}) = ${ans}.`,
+    fig:{pts:[],vecs:[{a:[0,0],b:a,l:'a',c:0},{a:[0,0],b:b,l:'b',c:1}]}};
+});
+
+function build(spec){
+  const seen=new Set([spec.correct]);let w=[];
+  for(const x of spec.wrongs){if(!seen.has(x)){seen.add(x);w.push(x)}}
+  w=shuffle(w).slice(0,3);
+  let t=0;while(w.length<3&&t++<300){const x=spec.pad();if(!seen.has(x)){seen.add(x);w.push(x)}}
+  const opts=shuffle([spec.correct,...w]);
+  return{...spec,opts,ans:opts.indexOf(spec.correct)};
+}
+function makeQ(type){return build(pick(GEN[type])())}
+//GEN>
+
+const TOPICS=[
+ {id:1,name:'Tọa độ vectơ và điểm',f:`${V('u')} = x${V('i')} + y${V('j')}, ${V('AB')} = (x<sub>B</sub> − x<sub>A</sub>; y<sub>B</sub> − y<sub>A</sub>)`},
+ {id:2,name:'Độ dài và khoảng cách',f:`|${V('u')}| = √(x² + y²), AB = √((x<sub>B</sub> − x<sub>A</sub>)² + (y<sub>B</sub> − y<sub>A</sub>)²)`},
+ {id:3,name:'Quan hệ hai vectơ',f:`${V('a')} = ${V('b')}, hai vectơ cùng phương ${V('b')} = k${V('a')}`},
+ {id:4,name:'Phép toán vectơ',f:`${V('a')} ± ${V('b')} = (x<sub>1</sub> ± x<sub>2</sub>; y<sub>1</sub> ± y<sub>2</sub>), k${V('a')} = (kx<sub>1</sub>; ky<sub>1</sub>)`},
+ {id:5,name:'Trung điểm và trọng tâm',f:`M((x<sub>A</sub> + x<sub>B</sub>)/2; …), G((x<sub>A</sub> + x<sub>B</sub> + x<sub>C</sub>)/3; …)`},
+ {id:6,name:'Tích vô hướng và góc',f:`${V('a')} · ${V('b')} = x<sub>1</sub>x<sub>2</sub> + y<sub>1</sub>y<sub>2</sub>, cos(${V('a')}, ${V('b')})`}
+];
+
+const $=s=>document.querySelector(s);
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const S={mode:'practice',type:1,types:[1,2,3,4,5,6],q:null,done:false,score:0,streak:0,best:0,ok:0,total:0,name:''};
+const WIN=20;
+
+function show(id){
+  for(const s of ['home','setup','quiz','result'])$('#'+s).hidden=s!==id;
+  window.scrollTo(0,0);
+  if(id==='home')renderBoard();
+}
+function renderRecord(){$('#record').textContent=store.get('vec_record',0)}
+
+/* home */
+function renderHome(){
+  $('#topics').innerHTML=TOPICS.map(t=>`<button class="topic" type="button" data-type="${t.id}"><span class="tag">Dạng ${t.id}</span><h3>${t.name}</h3><span class="f">${t.f}</span></button>`).join('');
+  $('#checks').innerHTML=TOPICS.map(t=>`<label class="check"><input type="checkbox" value="${t.id}" checked><span>${t.id}. ${t.name}</span></label>`).join('');
+}
+function renderBoard(){
+  const h=store.get('vec_hist',[]);
+  $('#board').hidden=!h.length;
+  $('#boardBody').innerHTML=h.slice(0,8).map(r=>`<tr><td>${esc(r.name)}</td><td>${r.score}</td><td>${r.best}/${WIN}</td><td>${r.win?'Thắng':'Chưa thắng'}</td><td>${r.date}</td></tr>`).join('');
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* quiz */
+function startPractice(type){
+  Object.assign(S,{mode:'practice',type,score:0,streak:0,best:0,ok:0,total:0});
+  $('#progWrap').hidden=true;
+  show('quiz');nextQ();
+}
+function startChallenge(){
+  const name=$('#name').value.trim();
+  const types=[...document.querySelectorAll('#checks input:checked')].map(i=>+i.value);
+  if(!name){$('#setupMsg').textContent='Hãy nhập họ và tên học sinh.';$('#name').focus();return}
+  if(!types.length){$('#setupMsg').textContent='Hãy chọn ít nhất một dạng.';return}
+  $('#setupMsg').textContent='';
+  Object.assign(S,{mode:'challenge',name,types,score:0,streak:0,best:0,ok:0,total:0});
+  $('#progWrap').hidden=false;
+  show('quiz');nextQ();
+}
+function renderStats(){
+  const rec=store.get('vec_record',0);
+  $('#stats').innerHTML=S.mode==='challenge'
+    ?`<span class="chip">${esc(S.name)}</span><span class="chip">Điểm: <b>${S.score}</b></span><span class="chip">Chuỗi: <b>${S.streak}/${WIN}</b></span>`
+    :`<span class="chip">Đúng: <b>${S.ok}/${S.total}</b></span><span class="chip">Chuỗi: <b>${S.streak}</b></span>`;
+  $('#prog').style.width=(S.streak/WIN*100)+'%';
+}
+function nextQ(){
+  const type=S.mode==='challenge'?pick(S.types):S.type;
+  S.q=makeQ(type);S.done=false;S.curType=type;
+  $('#qtitle').textContent=`Dạng ${type} · ${TOPICS[type-1].name}`;
+  $('#qtext').innerHTML=S.q.t;
+  $('#opts').innerHTML=S.q.opts.map((o,i)=>`<button class="opt" type="button" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${o}</span></button>`).join('');
+  $('#fb').hidden=true;
+  renderStats();
+}
+function answer(i){
+  if(S.done||!S.q)return;
+  S.done=true;
+  const good=i===S.q.ans;
+  S.total++;
+  if(good){S.ok++;S.streak++;S.best=Math.max(S.best,S.streak);if(S.mode==='challenge')S.score++}
+  else{S.streak=0;if(S.mode==='challenge')S.score-=2}
+  document.querySelectorAll('.opt').forEach((b,k)=>{
+    b.disabled=true;
+    if(k===S.q.ans){b.classList.add('right');b.querySelector('.k').textContent='✓'}
+    else if(k===i){b.classList.add('wrong');b.querySelector('.k').textContent='✕'}
+  });
+  const v=$('#verdict');
+  v.className='verdict '+(good?'ok':'no');
+  v.textContent=good?(S.mode==='challenge'?'Chính xác! +1 điểm':'Chính xác!'):(S.mode==='challenge'?`Chưa đúng, đáp án là ${'ABCD'[S.q.ans]}. −2 điểm, chuỗi về 0.`:`Chưa đúng, đáp án là ${'ABCD'[S.q.ans]}.`);
+  $('#why').innerHTML=S.q.why;
+  $('#figure').innerHTML=drawFig(S.q.fig);
+  $('#fb').hidden=false;
+  const won=S.mode==='challenge'&&S.streak>=WIN;
+  $('#btnNext').textContent=won?'Xem kết quả ➔':'Câu tiếp theo ➔';
+  $('#btnNext').focus({preventScroll:true});
+  renderStats();
+  if(S.mode==='challenge'){ if(S.score>store.get('vec_record',0)){store.set('vec_record',S.score);renderRecord()} }
+}
+function onNext(){
+  if(!S.done)return;
+  if(S.mode==='challenge'&&S.streak>=WIN)return finish(true);
+  nextQ();
+}
+function finish(win){
+  if(S.mode==='challenge'&&S.total>0){
+    const h=store.get('vec_hist',[]);
+    h.unshift({name:S.name,score:S.score,best:S.best,win:!!win,date:new Date().toLocaleDateString('vi-VN')});
+    store.set('vec_hist',h.slice(0,30));
+    if(S.score>store.get('vec_record',0))store.set('vec_record',S.score);
+    renderRecord();
+    $('#resName').textContent=S.name;
+    $('#resScore').textContent=S.score+' điểm';
+    $('#resMsg').textContent=win?`Chúc mừng, bạn đã trả lời đúng ${WIN} câu liên tiếp!`:`Chuỗi đúng dài nhất của bạn là ${S.best}/${WIN}. Thử lại để vượt qua nhé.`;
+    $('#resSum').innerHTML=`<div><b>${S.ok}/${S.total}</b><span>Số câu đúng</span></div><div><b>${S.best}/${WIN}</b><span>Chuỗi dài nhất</span></div><div><b>${S.total?Math.round(S.ok/S.total*100):0}%</b><span>Tỉ lệ đúng</span></div>`;
+    show('result');
+  }else show('home');
+}
+
+/* figure */
+function drawFig(f){
+  if(!f)return '';
+  const X=[0],Y=[0];
+  (f.pts||[]).forEach(p=>{X.push(p[1]);Y.push(p[2])});
+  (f.vecs||[]).forEach(v=>{X.push(v.a[0],v.b[0]);Y.push(v.a[1],v.b[1])});
+  (f.poly||[]).forEach(p=>{X.push(p[0]);Y.push(p[1])});
+  let x0=Math.min(...X)-1,x1=Math.max(...X)+1,y0=Math.min(...Y)-1,y1=Math.max(...Y)+1;
+  const span=Math.max(x1-x0,y1-y0,8),cx=(x0+x1)/2,cy=(y0+y1)/2;
+  x0=cx-span/2;x1=cx+span/2;y0=cy-span/2;y1=cy+span/2;
+  const W=300,s=W/span,sx=x=>((x-x0)*s).toFixed(1),sy=y=>(W-(y-y0)*s).toFixed(1);
+  const step=span<=14?1:span<=28?2:5;
+  let g='',tk='';
+  for(let i=Math.ceil(x0/step)*step;i<=x1;i+=step){g+=`<line class="g-grid" x1="${sx(i)}" y1="0" x2="${sx(i)}" y2="${W}"/>`;if(i!==0)tk+=`<text class="g-tick" x="${sx(i)}" y="${+sy(0)+11}" text-anchor="middle">${N(i)}</text>`}
+  for(let j=Math.ceil(y0/step)*step;j<=y1;j+=step){g+=`<line class="g-grid" x1="0" y1="${sy(j)}" x2="${W}" y2="${sy(j)}"/>`;if(j!==0)tk+=`<text class="g-tick" x="${+sx(0)-4}" y="${+sy(j)+3}" text-anchor="end">${N(j)}</text>`}
+  const ax=`<line class="g-axis" x1="0" y1="${sy(0)}" x2="${W}" y2="${sy(0)}"/><line class="g-axis" x1="${sx(0)}" y1="0" x2="${sx(0)}" y2="${W}"/>
+    <text class="g-tick" x="${W-8}" y="${+sy(0)-5}">x</text><text class="g-tick" x="${+sx(0)+5}" y="9">y</text><text class="g-tick" x="${+sx(0)-9}" y="${+sy(0)+11}">O</text>`;
+  const mk=[0,1,2].map(c=>`<marker id="ah${c}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk${c}" d="M0 0L10 5L0 10z"/></marker>`).join('');
+  let poly='';
+  if(f.poly&&f.poly.length)poly=`<polyline class="g-poly" points="${f.poly.map(p=>sx(p[0])+','+sy(p[1])).join(' ')}"/>`;
+  const vs=(f.vecs||[]).map(v=>{
+    const mx=(+sx(v.a[0])+ +sx(v.b[0]))/2,my=(+sy(v.a[1])+ +sy(v.b[1]))/2;
+    return `<line class="g-v${v.c}" x1="${sx(v.a[0])}" y1="${sy(v.a[1])}" x2="${sx(v.b[0])}" y2="${sy(v.b[1])}" marker-end="url(#ah${v.c})"/><text class="g-txt" x="${mx+5}" y="${my-5}">${v.l}</text>`;
+  }).join('');
+  const ps=(f.pts||[]).map(p=>`<circle class="g-pt" cx="${sx(p[1])}" cy="${sy(p[2])}" r="3.5"/><text class="g-txt" x="${+sx(p[1])+6}" y="${+sy(p[2])-6}">${p[0]}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${W}" role="img" aria-label="Hình minh họa trên hệ trục Oxy"><defs>${mk}</defs>${g}${ax}${tk}${poly}${vs}${ps}</svg>`;
+}
+
+/* events */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.type)return startPractice(+t.dataset.type);
+  if(t.dataset.i!==undefined&&t.classList.contains('opt'))return answer(+t.dataset.i);
+  if(t.dataset.go)return show(t.dataset.go);
+});
+$('#btnChallenge').onclick=()=>{$('#setupMsg').textContent='';show('setup');$('#name').focus()};
+$('#btnStart').onclick=startChallenge;
+$('#btnNext').onclick=onNext;
+$('#btnExit').onclick=()=>finish(false);
+$('#btnAgain').onclick=()=>{show('setup')};
+$('#btnClear').onclick=()=>{store.set('vec_hist',[]);renderBoard()};
+$('#btnBig').onclick=()=>{
+  const on=document.body.classList.toggle('big');
+  $('#btnBig').setAttribute('aria-pressed',on);
+  try{if(on&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}
+};
+$('#name').addEventListener('keydown',e=>{if(e.key==='Enter')startChallenge()});
+document.addEventListener('keydown',e=>{
+  if($('#quiz').hidden||e.target.tagName==='INPUT')return;
+  const k=e.key.toLowerCase(),m={'1':0,'2':1,'3':2,'4':3,a:0,b:1,c:2,d:3};
+  if(!S.done&&k in m&&m[k]<4)answer(m[k]);
+  else if(S.done&&(k==='enter')){e.preventDefault();onNext()}
+});
+
+renderHome();renderRecord();renderBoard();show('home');
+</script>
+
+</body>
+</html>
